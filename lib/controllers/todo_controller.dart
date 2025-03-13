@@ -1,49 +1,54 @@
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
+import 'package:todo_getx/controllers/auth_controller.dart';
 import 'package:todo_getx/models/todo_model.dart';
+import 'package:todo_getx/services/storage_services.dart';
 
 class TodoController extends GetxController {
   var todoList = <TodoModel>[].obs;
-
-  final GetStorage _box = GetStorage();
+  StorageService storageService = StorageService();
+  AuthController authController = Get.put(AuthController());
 
   @override
   void onInit() {
     super.onInit();
-    loadTodos();
+    fetchtodos();
+  }
+
+  Future<void> fetchtodos() async {
+    var todos = await storageService.read(
+      'todolist',
+      authController.user.value?.uid ?? '',
+    );
+    if (todos != null) {
+      todoList.value = List<TodoModel>.from(
+        todos.map((x) => TodoModel.fromJson(x)),
+      );
+    }
   }
 
   void addTodo(String title, String subtitle) {
-    todoList.add(TodoModel(title, subtitle, false));
-    saveTodos();
+    TodoModel todo = TodoModel(
+      title,
+      subtitle,
+      false,
+      uid: authController.user.value?.uid,
+    );
+    todoList.add(todo);
+    storageService.write('todolist', todo.toJson());
   }
 
   void toggleTodo(int index) {
     todoList[index].isCompleted = !todoList[index].isCompleted;
     todoList.refresh();
-    saveTodos();
   }
 
   void deleteTodo(int index) {
     todoList.removeAt(index);
-    saveTodos();
   }
 
   void deleteall() {
     todoList.clear();
-    todoList.refresh();
-    saveTodos();
   }
 
-  void saveTodos() {
-    List<Map<String, dynamic>> todos =
-        todoList.map((todo) => todo.toJson()).toList();
-    _box.write('todos', todos);
-  }
-
-  void loadTodos() {
-    List<dynamic> storedTodos = _box.read<List<dynamic>>('todos') ?? [];
-    todoList.value =
-        storedTodos.map((json) => TodoModel.fromJson(json)).toList();
-  }
+  void loadTodos() async {}
 }

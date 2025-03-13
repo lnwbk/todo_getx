@@ -21,8 +21,8 @@ class _LoginViewState extends State<LoginView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Login"),
-        backgroundColor: Colors.green,
+        title: Text("Login", style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.black,
         centerTitle: true,
       ),
       body: Container(
@@ -51,7 +51,6 @@ class _LoginViewState extends State<LoginView> {
                   );
                   return;
                 }
-
                 authController.login(
                   emailController.text,
                   passwordController.text,
