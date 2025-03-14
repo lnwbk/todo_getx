@@ -26,29 +26,42 @@ class TodoController extends GetxController {
     }
   }
 
-  void addTodo(String title, String subtitle) {
+  Future<void> addTodo(String title, String subtitle) async {
     TodoModel todo = TodoModel(
       title,
       subtitle,
       false,
       uid: authController.user.value?.uid,
     );
+    String docId = await storageService.write('todoList', todo.toJson());
+    todo.docid = docId;
     todoList.add(todo);
-    storageService.write('todolist', todo.toJson());
   }
 
   void toggleTodo(int index) {
     todoList[index].isCompleted = !todoList[index].isCompleted;
     todoList.refresh();
+    storageService.update('todoList', todoList[index].docid ?? '', {
+      'isCompleted': todoList[index].isCompleted,
+    });
   }
 
-  void deleteTodo(int index) {
-    todoList.removeAt(index);
+  void deleteTodo(String docid) {
+    todoList.removeWhere((todo) => todo.docid == docid);
+    storageService.delete('todoList', docid);
   }
 
   void deleteall() {
     todoList.clear();
   }
 
-  void loadTodos() async {}
+Future<void> updateTodo(TodoModel todo) async {
+  todoList.firstWhere((todo) => todo.docid == todo.docid).title;
+  todoList.firstWhere((todo) => todo.docid == todo.docid).subtitle;
+  todoList.refresh();
+  await storageService.update('todoList',todo.docid ?? '', todo.toJson());}
 }
+
+
+  void loadTodos() async {}
+

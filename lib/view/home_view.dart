@@ -42,9 +42,12 @@ class HomeView extends StatelessWidget {
                 onChanged: (_) => todoController.toggleTodo(index),
               ),
               trailing: IconButton(
-                onPressed: () => todoController.deleteTodo(index),
+                onPressed: () => todoController.deleteTodo(todo.docid ?? ''),
                 icon: Icon(Icons.delete),
               ),
+              onTap: (){
+                Get.to(AddTodoView(todo: todo));
+              }
             );
           },
         ),
